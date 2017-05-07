@@ -8,8 +8,13 @@ library-objects = \
 	bigint/BigUnsignedInABase.o \
 	bigint/BigIntegerUtils.o \
 
-RSA: main.cpp library
-	$(CXX) $(CFLAGS) -o RSA main.cpp $(library-objects)
+RSA: rsa.cpp library
+	$(CXX) $(CFLAGS) -o RSA rsa.cpp $(library-objects)
+
+gen_keys: gen_keys.cpp library
+	$(CXX) $(CFLAGS) -o gen_keys gen_keys.cpp $(library-objects)
+
+all: RSA gen_keys
 
 #%.o: %.cpp %.h
 # 	@$(CXX) $(CFLAGS) -c $<
