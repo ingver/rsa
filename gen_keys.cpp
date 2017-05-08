@@ -35,12 +35,12 @@ unsigned long lrand()
  */
 BigUnsigned burand(size_t max_blk_count)
 {
-	Blk* blks = new Blk[max_blk_count];
+    Blk* blks = new Blk[max_blk_count];
     for (Index i = 0; i < max_blk_count; ++i) {
         blks[i] = lrand();
     }
-	BigUnsigned a(blks, max_blk_count);
-	delete blks;
+    BigUnsigned a(blks, max_blk_count);
+    delete blks;
 
     return a;
 }
@@ -52,21 +52,21 @@ BigUnsigned burand(size_t max_blk_count)
 #define TESTS 100
 bool is_prime(const BigUnsigned& n)
 {
-	for(Index i = 0; i < TESTS; i++) {
-	    // create number `a` for the test
-	    BigUnsigned a( (burand(n.getCapacity()) % (n - 2)) + 2 );
+    for(Index i = 0; i < TESTS; i++) {
+        // create number `a` for the test
+        BigUnsigned a( (burand(n.getCapacity()) % (n - 2)) + 2 );
 
         /*
-         * test `n` against `a`
-         */
-		if (gcd(a, n) != 1) {
-			return false;
-		}
-		if(modexp(a, n - 1, n) != 1) {
-			return false;
-		}
-	}
-	return true;
+        * test `n` against `a`
+        */
+        if (gcd(a, n) != 1) {
+            return false;
+        }
+        if(modexp(a, n - 1, n) != 1) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /*
@@ -89,7 +89,7 @@ BigUnsigned generate_prime(size_t size)
           last_blk = 0;
 
     // create an array of data for generating prime number
-	Blk* blks = new Blk[blk_count];
+    Blk* blks = new Blk[blk_count];
     for (Index i = 0; i < blk_count; ++i) {
         blks[i] = lrand();
     }
@@ -103,8 +103,8 @@ BigUnsigned generate_prime(size_t size)
     // discard greater bits
     blks[first_blk] &= mask;
 
-	BigUnsigned num(blks, blk_count);
-	delete blks;
+    BigUnsigned num(blks, blk_count);
+    delete blks;
 
     while (!is_prime(num)) {
         num += 2;
