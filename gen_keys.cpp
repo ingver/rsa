@@ -183,6 +183,18 @@ int main(int argc, const char** argv)
         priv_filename = argv[3]; // get private key filename from 4th parameter
     }
 
+    // open files
+    fstream pub_file(pub_filename, fstream::out);
+    if (!pub_file.is_open()) {
+        cerr << "Failed to open file " << pub_filename << endl;
+        return 4;
+    }
+    fstream priv_file(priv_filename, fstream::out);
+    if (!priv_file.is_open()) {
+        cerr << "Failed to open file " << priv_filename << endl;
+        return 5;
+    }
+
     // generate keys
     vector<BigUnsigned> keys;
     try {
@@ -196,12 +208,10 @@ int main(int argc, const char** argv)
     BigUnsigned e = keys[0], d = keys[1], n = keys[2];
 
     // write public key to file
-    fstream pub_file(pub_filename, fstream::out);
     pub_file << e << endl << n << endl;
     pub_file.close();
 
     // write private key to file
-    fstream priv_file(priv_filename, fstream::out);
     priv_file << d << endl << n << endl;
     priv_file.close();
 
