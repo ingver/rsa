@@ -15,7 +15,7 @@ void show_help(const char* prog_name)
          << prog_name << " <KEY_SIZE_IN_BITS> [<PUB_KEY_FILENAME>] [<PRIV_KEY_FILENAME]\n\n"
          << "defaults:\n"
          << "PUB_KEY_FILENAME: \"rsa_pub.key\"\n"
-         << "PRIV_KEY_FILENAME: \"rsa_priv.key\"\n";
+         << "PRIV_KEY_FILENAME: \"rsa_prv.key\"\n";
 }
 
 /*
@@ -162,7 +162,7 @@ int main(int argc, const char** argv)
 
     size_t key_size; // generated key size
     const char* pub_filename = "rsa_pub.key", // default public key filename
-              * priv_filename = "rsa_priv.key"; // default private key filename
+              * priv_filename = "rsa_prv.key"; // default private key filename
 
     if (argc < 2 || argc > 4) {
         show_help(argv[0]);
