@@ -78,12 +78,6 @@ BigUnsigned generate_prime(size_t size)
            blk_count = size / blk_size + (size % blk_size ? 1 : 0); // blocks needed to contain primes
     Blk mask = (~Blk(0)) >> (blk_count * blk_size - size);          // bitmask for discarding greater bits
 
-    //cout << "mask = " << showbase << hex << mask << endl
-         //<< "blk_size in bits = " << blk_size << endl
-         //<< "prime size in bits = " << size << endl
-         //<< "prime in bytes = " << (size / 8 + (size % 8 ? 1 : 0)) << endl
-         //<< "prime in blocks = " << blk_count << endl;
-
     // block order in BigUnsigned is inverted
     Index first_blk = blk_count - 1,
           last_blk = 0;
@@ -109,10 +103,6 @@ BigUnsigned generate_prime(size_t size)
     while (!is_prime(num)) {
         num += 2;
     }
-
-    //cout << "Generated prime:\n"
-         //<< num << endl
-         //<< showbase << hex << num << dec << endl;
 
     return num;
 }
@@ -155,10 +145,6 @@ vector<BigUnsigned> generate_keys(size_t key_size)
 int main(int argc, const char** argv)
 {
     srand(time(NULL));
-
-    //BigUnsigned tested(stringToBigUnsigned(argv[1]));
-    //cout << "is " << tested << " prime? " << is_prime(tested) << endl;
-    //return 0;
 
     size_t key_size; // generated key size
     const char* pub_filename = "rsa_pub.key", // default public key filename

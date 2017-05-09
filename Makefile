@@ -16,9 +16,6 @@ gen_keys: gen_keys.cpp library
 
 all: rsa gen_keys
 
-#%.o: %.cpp %.h
-# 	@$(CXX) $(CFLAGS) -c $<
-
 library:
 	make -C bigint library
 
@@ -27,4 +24,3 @@ clean:
 
 clean-all: clean
 	make -C bigint clean
-# 	@if [ -f *.o ]; then rm *.o; fi
