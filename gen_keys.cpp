@@ -12,7 +12,7 @@ typedef BigUnsigned::Index Index;
 void show_help(const char* prog_name)
 {
     cout << "USAGE:\n"
-         << prog_name << " <KEY_SIZE_IN_BITS> [<PUB_KEY_FILENAME>] [<PRIV_KEY_FILENAME]\n\n"
+         << prog_name << " <KEY_SIZE_IN_BITS> [<PUB_KEY_FILENAME> [<PRIV_KEY_FILENAME]]\n\n"
          << "defaults:\n"
          << "PUB_KEY_FILENAME: \"rsa_pub.key\"\n"
          << "PRIV_KEY_FILENAME: \"rsa_prv.key\"\n";
