@@ -14,7 +14,7 @@ rsa: rsa.cpp library
 gen_keys: gen_keys.cpp library
 	$(CXX) $(CFLAGS) -o gen_keys gen_keys.cpp $(library-objects)
 
-all: RSA gen_keys
+all: rsa gen_keys
 
 #%.o: %.cpp %.h
 # 	@$(CXX) $(CFLAGS) -c $<
