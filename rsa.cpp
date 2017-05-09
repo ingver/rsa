@@ -14,7 +14,7 @@ void show_help(const char* prog_name)
 }
 
 /*
- * joins hex ascii codes of each char of the text
+ * joins hex ascii codes of each char of the `text`
  */
 string textToHex(const string& text)
 {
@@ -29,7 +29,7 @@ string textToHex(const string& text)
     return s.str();
 }
 /*
- * splits text to get hex ascii codes
+ * splits `text` to get hex ascii codes
  */
 string hexToText(const string& text)
 {
@@ -43,7 +43,7 @@ string hexToText(const string& text)
 }
 
 /*
- * converts text to BigUnsigned
+ * converts `text` to BigUnsigned
  */
 BigUnsigned textToBigUnsigned(const string& text)
 {
@@ -68,17 +68,13 @@ string bigUnsignedToText(const BigUnsigned& bu)
 
 int main(int argc, const char** argv)
 {
-    /*
-     * testing conversion from text to bigint and vice versa
-     */
-
     if (argc != 4) {
         show_help(argv[0]);
         return 1;
     }
 
     /*
-     * read arguments
+     * read arguments from command line
      */
     string key_filename(argv[1]),
            input_filename(argv[2]),
@@ -147,7 +143,7 @@ int main(int argc, const char** argv)
     }
 
     /*
-     * make operation
+     * make transformation
      */
     BigUnsigned result(modexp(input, exp, mod));
     BigUnsigned output(result);

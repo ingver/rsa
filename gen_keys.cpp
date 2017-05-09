@@ -53,7 +53,9 @@ BigUnsigned burand(size_t max_blk_count)
 bool is_prime(const BigUnsigned& n)
 {
     for(Index i = 0; i < TESTS; i++) {
-        // create number `a` for the test
+        /*
+         * create number `a` for the test
+         */
         BigUnsigned a( (burand(n.getCapacity()) % (n - 2)) + 2 );
 
         /*
@@ -78,11 +80,15 @@ BigUnsigned generate_prime(size_t size)
            blk_count = size / blk_size + (size % blk_size ? 1 : 0); // blocks needed to contain primes
     Blk mask = (~Blk(0)) >> (blk_count * blk_size - size);          // bitmask for discarding greater bits
 
-    // block order in BigUnsigned is inverted
+    /*
+     * block order in BigUnsigned is inverted
+     */
     Index first_blk = blk_count - 1,
           last_blk = 0;
 
-    // create an array of data for generating prime number
+    /*
+     * create an array of data for generating prime number
+     */
     Blk* blks = new Blk[blk_count];
     for (Index i = 0; i < blk_count; ++i) {
         blks[i] = lrand();
@@ -90,16 +96,23 @@ BigUnsigned generate_prime(size_t size)
     while (blks[first_blk] == 0) {
         blks[first_blk] = lrand();
     }
-    // ensure that the last block is odd
+    /*
+     * ensure that the last block is odd
+     */
     while (blks[last_blk] % 2 == 0) {
         blks[last_blk] = lrand();
     }
-    // discard greater bits
+    /*
+     * discard greater bits
+     */
     blks[first_blk] &= mask;
 
     BigUnsigned num(blks, blk_count);
     delete blks;
 
+    /*
+     * get the prime number
+     */
     while (!is_prime(num)) {
         num += 2;
     }
@@ -118,23 +131,33 @@ vector<BigUnsigned> generate_keys(size_t key_size)
     size_t half_key_size = key_size / 2;
 
     BigUnsigned p, q, n, fi_n, e, d;
-    // generate primes (p and q)
+    /*
+     * generate primes (p and q)
+     */
     p = generate_prime(half_key_size);
     q = generate_prime(half_key_size);
     while (p == q) {
         q = generate_prime(half_key_size);
     }
 
-    // compute modulus (n)
+    /*
+     * compute modulus (n)
+     */
     n = p * q;
 
-    // compute fi_n
+    /*
+     * compute fi_n
+     */
     fi_n = (p - 1) * (q - 1);
 
-    // compute public exponent (e)
+    /*
+     * compute public exponent (e)
+     */
     e = 65537;
 
-    // compute private exponent (d)
+    /*
+     * compute private exponent (d)
+     */
     d = modinv(e, fi_n);
 
     return vector<BigUnsigned>{
@@ -155,7 +178,7 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    key_size = stoi(string(argv[1])); // get key size from 2nd parameter[
+    key_size = stoi(string(argv[1])); // get key size from 2nd parameter
 
     if (key_size % 2 != 0) {
         cerr << "Key size must be even" << endl;
@@ -169,7 +192,9 @@ int main(int argc, const char** argv)
         priv_filename = argv[3]; // get private key filename from 4th parameter
     }
 
-    // open files
+    /*
+     * open files
+     */
     fstream pub_file(pub_filename, fstream::out);
     if (!pub_file.is_open()) {
         cerr << "Failed to open file " << pub_filename << endl;
@@ -181,7 +206,9 @@ int main(int argc, const char** argv)
         return 5;
     }
 
-    // generate keys
+    /*
+     * generate keys
+     */
     vector<BigUnsigned> keys;
     try {
         keys = generate_keys(key_size);
@@ -190,14 +217,20 @@ int main(int argc, const char** argv)
         return 3;
     }
 
-    // name keys respectively
+    /*
+     * name keys respectively
+     */
     BigUnsigned e = keys[0], d = keys[1], n = keys[2];
 
-    // write public key to file
+    /*
+     * write public key to file
+     */
     pub_file << e << endl << n << endl;
     pub_file.close();
 
-    // write private key to file
+    /*
+     * write private key to file
+     */
     priv_file << d << endl << n << endl;
     priv_file.close();
 
