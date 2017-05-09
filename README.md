@@ -1,7 +1,5 @@
 # RSA implementation in C++
 
-===========================
-
 Compile with:
 ```bash
 $ make
