@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
+#include <sstream>
 #include "bigint/BigIntegerLibrary.hh"
 
 using namespace std;
@@ -8,99 +10,92 @@ using namespace std;
 void show_help(const char* prog_name)
 {
     cout << "USAGE:\n"
-         << prog_name << " e|d [<KEY_FILENAME>] [<INPUT_FILENAME>] [<OUTPUT_FILENAME>]\n\n"
-         << "    e -- encrypt\n"
-         << "    d -- decrypt\n\n"
-         << "defaults:\n"
-         << "    KEY_FILENAME: e -> \"rsa_pub.key\" | d -> \"rsa_priv.key\"\n"
-         << "    INPUT_FILENAME: \"input.txt\"\n"
-         << "    OUTPUT_FILENAME: \"output.txt\"\n";
+         << prog_name << " <KEY_FILENAME> <INPUT_FILENAME> <OUTPUT_FILENAME>\n\n";
 }
 
-BigUnsigned dataToBigUnsigned(const char* data, size_t length)
+/*
+ * joins hex ascii codes of each char of the text
+ */
+string textToHex(const string& text)
 {
-    return dataToBigInteger(data, length, BigInteger::positive).getMagnitude();
-}
-
-string unsignedToData(const BigUnsigned& num)
-{
-    BigUnsigned::Index cap = num.getCapacity();
-    NumberlikeArray<BigUnsigned::Blk> arr(cap);
-
-    for (BigUnsigned::Index i = 0; i < cap; ++i) {
-        arr.blk[i] = num.getBlock(i);
+    unsigned short mask = 0x00ff;
+    stringstream s;
+    s << setfill('0') << hex;
+    for (const char& c: text) {
+        unsigned short n = (mask & (unsigned short)c);
+        s << setw(2) << n;
     }
 
-    size_t size_in_bytes = sizeof(BigUnsigned::Blk) * cap;
-    string data((const char *)(arr.blk), size_in_bytes);
+    return s.str();
+}
+/*
+ * splits text to get hex ascii codes
+ */
+string hexToText(const string& text)
+{
+    stringstream in(text), out;
+    string h;
+    while (in >> setw(2) >> h) {
+        unsigned short i = stoi(h, 0, 16);
+        out.put(i);
+    }
+    return out.str();
+}
 
-    //reverse(begin(data), end(data));
+/*
+ * converts text to BigUnsigned
+ */
+BigUnsigned textToBigUnsigned(const string& text)
+{
+    return BigUnsignedInABase(textToHex(text), 16);
+}
 
-    return data;
+/*
+ * converts BigUnsigned to text
+ */
+string bigUnsignedToText(const BigUnsigned& bu)
+{
+    stringstream s;
+    s << hex << bu;
+
+    string str(s.str());
+    if (s.str().length() % 2 != 0) {
+        str = string("0") + str;
+    }
+
+    return hexToText(str);
 }
 
 int main(int argc, const char** argv)
 {
-    //string msg_str = "Hello, RSA";
-    //BigUnsigned msg(dataToBigUnsigned(msg_str.c_str(), msg_str.length()));
+    /*
+     * testing conversion from text to bigint and vice versa
+     */
 
-    if (argc < 2 || argc > 5) {
+    if (argc != 4) {
         show_help(argv[0]);
         return 1;
     }
 
-    string operation(argv[1]);
-
-    if (operation.length() != 1) {
-        cerr << "Second parameter corresponds to operation `e` (encrypt) or `d` (decrypt)\n";
-        show_help(argv[0]);
-        return 2;
-    }
+    /*
+     * read arguments
+     */
+    string key_filename(argv[1]),
+           input_filename(argv[2]),
+           output_filename(argv[3]);
 
     /*
-     * crypto operation
-     * e -- encrypt
-     * d -- decrypt
+     * open key file
      */
-    char op = operation[0];
-
-    // filename that contains crypto-key
-    string key_filename;
-    // set default filename
-    if (op == 'e') {
-        key_filename = "rsa_pub.key"; // default public key filename
-    } else if (op == 'd') {
-        key_filename = "rsa_priv.key"; // default private key filename
-    } else {
-        cout << "Wrong operation `" << op << "`. Must be `e` or `d`\n";
-        show_help(argv[0]);
-        return 3;
-    }
-
-    // default filenames for input and output
-    string input_filename("input.txt"),
-           output_filename("output.txt");
-
-    // read arguments
-    if (argc >= 3) {
-        key_filename = argv[2];
-    }
-    if (argc >= 4) {
-        input_filename = argv[3];
-    }
-    if (argc == 5) {
-        output_filename = argv[4];
-    }
-
-
-    // open key file
     fstream key_file(key_filename, fstream::in);
     if (!key_file.is_open()) {
         cerr << "Failed to open KEY file `" << key_filename << "`" << endl;
         return 4;
     }
 
-    // read the key
+    /*
+     * read the key
+     */
     string exp_str, mod_str;
     getline(key_file, exp_str);
     getline(key_file, mod_str);
@@ -112,18 +107,19 @@ int main(int argc, const char** argv)
 
     BigUnsigned exp(stringToBigUnsigned(exp_str)),
                 mod(stringToBigUnsigned(mod_str));
-    cout << "exp = " << exp << endl
-         << "mod = " << mod << endl
-         << "mod capacity = " << mod.getCapacity() << endl;
 
-    // open input file
+    /*
+     * open input file
+     */
     fstream input_file(input_filename, fstream::in);
     if (!input_file.is_open()) {
         cerr << "Failed to open INPUT file `" << input_filename << "`" << endl;
         return 6;
     }
 
-    // read the message
+    /*
+     * read the message
+     */
     string input_str, line;
     if (getline(input_file, line)) {
         input_str += line;
@@ -137,66 +133,55 @@ int main(int argc, const char** argv)
     }
     input_file.close();
 
-    cout << "---input----\n"
-         << input_str << endl
-         << "------------\n";
+    /*
+     * convert input to BigUnsigned
+     */
+    BigUnsigned input(textToBigUnsigned(input_str));
 
-    // convert input to BigUnsigned
-    BigUnsigned input(dataToBigUnsigned(input_str.c_str(), input_str.length()));
-    cout << "input:\n"
-         << input << endl
-         << "input capacity = " << input.getCapacity() << endl;
-
-    string input_str2(unsignedToData(input));
-    cout << "---input2----\n"
-         << input_str2 << endl
-         << "------------\n";
-
-    cout << "input == input2 : " << (input_str == input_str2) << endl;
-
+    /*
+     * check if input is greater than key modulus
+     */
     if (input > mod) {
         cerr << "The key must be greater than the input!" << endl;
         return 8;
     }
 
-    // make operation
-    BigUnsigned result = modexp(input, exp, mod);
+    /*
+     * make operation
+     */
+    BigUnsigned result(modexp(input, exp, mod));
     BigUnsigned output(result);
-    string output_str(unsignedToData(output));
+    string output_str(bigUnsignedToText(output));
 
-    cout << "---output----\n"
-         << output_str << endl
-         << "------------\n";
-    cout << "output:\n"
-         << output << endl
-         << "output capacity = " << output.getCapacity() << endl;
-
+    /*
+     * check if output is accidentally got greater than mod
+     */
     if (output > mod) {
         cerr << "FATAL ERROR: output is greater than mod" << endl;
         return 9;
     }
 
-    // open output file
+    /*
+     * open output file
+     */
     fstream output_file(output_filename, fstream::out);
     if (!output_file.is_open()) {
         cerr << "Failed to open OUTPUT file `" << output_filename << "`" << endl;
         return 10;
     }
 
-    // write the result
+    /*
+     * write the result
+     */
     output_file << output_str;
     if (output_file.fail()) {
         cerr << "An error occured while writing the result to OUTPUT file";
     }
 
-    // close output file
+    /*
+     * close output file
+     */
     output_file.close();
-
-    //BigUnsigned enc_msg = modexp(msg, e, n);
-    //string enc_msg_str = unsignedToData(enc_msg);
-
-    //BigUnsigned dec_msg = modexp(enc_msg, d, n);
-    //string dec_msg_str = unsignedToData(dec_msg);
 
     return 0;
 }
