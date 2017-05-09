@@ -8,8 +8,8 @@ library-objects = \
 	bigint/BigUnsignedInABase.o \
 	bigint/BigIntegerUtils.o \
 
-RSA: rsa.cpp library
-	$(CXX) $(CFLAGS) -o RSA rsa.cpp $(library-objects)
+rsa: rsa.cpp library
+	$(CXX) $(CFLAGS) -o rsa rsa.cpp $(library-objects)
 
 gen_keys: gen_keys.cpp library
 	$(CXX) $(CFLAGS) -o gen_keys gen_keys.cpp $(library-objects)
@@ -23,7 +23,7 @@ library:
 	make -C bigint library
 
 clean:
-	rm -f RSA
+	rm -f rsa gen_keys **/*.o
 
 clean-all: clean
 	make -C bigint clean
